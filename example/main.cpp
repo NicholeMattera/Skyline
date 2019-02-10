@@ -18,7 +18,7 @@
 //
 
 #include <switch.h>
-#include "../src/Application.hpp"
+#include "../src/Skyline.hpp"
 #include "scenes/ExampleScene.hpp"
 
 using namespace skyline;

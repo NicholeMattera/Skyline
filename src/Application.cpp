@@ -24,10 +24,7 @@ namespace skyline {
     Application::Application() {
         Application::sharedApplication = this;
 
-        this->_window = nwindowGetDefault();
-        
-        framebufferCreate(&this->_framebuffer, this->_window, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 2);
-        framebufferMakeLinear(&this->_framebuffer);
+        Draw::drawInit();
 
         setsysInitialize();
         setsysGetColorSetId(&colorSetId);
@@ -40,7 +37,7 @@ namespace skyline {
     Application::~Application() {
         Application::sharedApplication = NULL;
         _sceneStack.clear();
-        framebufferClose(&this->_framebuffer);
+        Draw::drawExit();
     }
 
     void Application::setRootScene(Scene * scene) {
@@ -74,13 +71,22 @@ namespace skyline {
             if (this->_currentScene == NULL)
                 break;
 
-            Draw::framebuffer = (u8 *) framebufferBegin(&this->_framebuffer, &Draw::stride);
-            Draw::drawFilledRectangle(SLRectMake(0, 0, FB_WIDTH, FB_HEIGHT), this->backgroundColor);
+            #ifdef USE_SDL
+                SDL_SetRenderDrawColor(SceneDirector::renderer, this->backgroundColor.r, this->backgroundColor.g, this->backgroundColor.b, this->backgroundColor.a);
+                SDL_RenderClear(Draw::renderer);
+            #else
+                Draw::currentFramebuffer = (u8 *) framebufferBegin(&Draw::framebuffer, &Draw::stride);
+                Draw::drawFilledRectangle(SLRectMake(0, 0, FB_WIDTH, FB_HEIGHT), this->backgroundColor);
+            #endif
 
             // TODO: Calculate delta time.
             this->_currentScene->render(SLRectMake(0, 0, FB_WIDTH, FB_HEIGHT), 0);
 
-            framebufferEnd(&this->_framebuffer);
+            #ifdef USE_SDL
+                SDL_RenderPresent(Draw::renderer);
+            #else
+                framebufferEnd(&Draw::framebuffer);
+            #endif
         }
     }
 }

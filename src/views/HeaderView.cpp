@@ -1,5 +1,5 @@
 //
-// Skyline Example
+// Skyline
 // Copyright (C) 2019 Steven Mattera
 //
 // This program is free software; you can redistribute it and/or
@@ -17,18 +17,19 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#include "../../src/Skyline.hpp"
+#include "HeaderView.hpp"
+#include "../Draw.hpp"
+#include "../Application.hpp"
 
-namespace skylineExample {
-    class ExampleScene : public skyline::Scene {
-        public:
-            ExampleScene();
-            ~ExampleScene();
-            
-            void handleButton(u32 kDown);
+using namespace std;
 
-        private:
-            skyline::HeaderView * _headerView;
-            skyline::FooterView * _footerView;
-    };
+namespace skyline {
+    HeaderView::HeaderView(string title, string icon) : View(SLRectMake(0, 0, FB_WIDTH, 88)) {}
+
+    HeaderView::~HeaderView() {}
+
+    void HeaderView::render(Rect rect, double dTime) {
+        Color lineColor = (Application::sharedApplication->colorSetId == ColorSetId_Light) ? SLColorMake(45, 45, 45, 255) : SLColorMake(255, 255, 255, 255);
+        Draw::drawLine(SLPointMake(30, rect.origin.y + rect.size.h - 1), SLPointMake(rect.size.w - 30, rect.origin.y + rect.size.h - 1), lineColor);
+    }
 }

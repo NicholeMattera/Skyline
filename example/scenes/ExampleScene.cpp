@@ -18,12 +18,29 @@
 //
 
 #include "ExampleScene.hpp"
-#include "../../src/Application.hpp"
 
 using namespace skyline;
 
 namespace skylineExample {
-    ExampleScene::~ExampleScene() {}
+    ExampleScene::ExampleScene() : Scene() {
+        _headerView = new HeaderView("Skyline Example", "sdmc:/dark/icon.png");
+        this->addSubView(_headerView);
+
+        _footerView = new FooterView();
+        this->addSubView(_footerView);
+    }
+
+    ExampleScene::~ExampleScene() {
+        if (_headerView != NULL) {
+            delete _headerView;
+            _headerView = NULL;
+        }
+
+        if (_footerView != NULL) {
+            delete _footerView;
+            _footerView = NULL;
+        }
+    }
 
     void ExampleScene::handleButton(u32 kDown) {
         if (kDown & KEY_PLUS) {

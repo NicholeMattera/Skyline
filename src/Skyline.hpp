@@ -1,5 +1,5 @@
 //
-// Skyline Example
+// Skyline
 // Copyright (C) 2019 Steven Mattera
 //
 // This program is free software; you can redistribute it and/or
@@ -17,18 +17,13 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#include "../../src/Skyline.hpp"
+#include "Types.hpp"
+#include "Draw.hpp"
+#include "Application.hpp"
+#include "Scene.hpp"
+#include "View.hpp"
 
-namespace skylineExample {
-    class ExampleScene : public skyline::Scene {
-        public:
-            ExampleScene();
-            ~ExampleScene();
-            
-            void handleButton(u32 kDown);
-
-        private:
-            skyline::HeaderView * _headerView;
-            skyline::FooterView * _footerView;
-    };
-}
+#include "views/FooterView.hpp"
+#include "views/HeaderView.hpp"
+#include "views/ImageView.hpp"
+#include "views/TextView.hpp"

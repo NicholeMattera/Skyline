@@ -41,8 +41,6 @@ namespace skyline {
             ColorSetId colorSetId;
             Color backgroundColor;
         private:
-            NWindow * _window;
-            Framebuffer _framebuffer;
             std::vector<Scene *> _sceneStack;
             Scene * _currentScene;
     };

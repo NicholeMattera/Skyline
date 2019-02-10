@@ -21,10 +21,10 @@
 
 #include <switch.h>
 
-#define SLPointMake(x, y) (Point) { x, y }
-#define SLSizeMake(w, h) (Size) { w, h }
-#define SLRectMake(x, y, w, h) (Rect) { { x, y }, { w, h } }
-#define SLColorMake(r, g, b, a) (Color) { r, g, b, a }
+#define SLPointMake(x, y) (Point) { (s16) (x), (s16) (y) }
+#define SLSizeMake(w, h) (Size) { (s16) (w), (s16) (h) }
+#define SLRectMake(x, y, w, h) (Rect) { { (s16) (x), (s16) (y) }, { (s16) (w), (s16) (h) } }
+#define SLColorMake(r, g, b, a) (Color) { (u8) (r), (u8) (g), (u8) (b), (u8) (a) }
 
 #define SLRectContainsPoint(rect, point) ( \
     point.x >= rect.origin.x && \
@@ -34,6 +34,13 @@
 )
 
 namespace skyline {
+    typedef enum {
+        IMAGE_MODE_RGB24,
+        IMAGE_MODE_RGBA32,
+        IMAGE_MODE_BGR24,
+        IMAGE_MODE_ABGR32
+    } ImageMode;
+
     struct Point {
         s16 x;
         s16 y;

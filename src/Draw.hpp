@@ -28,17 +28,31 @@
 namespace skyline {
     class Draw {
         public:
+            static void drawInit();
+            static void drawExit();
+
             static void drawPixel(Point p, Color color);
             static void drawLine(Point p1, Point p2, Color color);
             static void drawFilledRectangle(Rect rect, Color color);
-
-            static inline u8 * framebuffer;
-            static inline u32 stride;
+            static void drawImage(Rect rect, const u8 * image, ImageMode imageMode);
             
+            #ifdef USE_SDL
+                static inline SDL_Renderer * renderer;
+            #else
+                static inline Framebuffer framebuffer;
+                static inline u8 * currentFramebuffer;
+                static inline u32 stride;
+            #endif
         private:
             static u8 _blendColor(u8 src, u8 dst, u8 alpha);
             static void _drawHorizontalLine(Point p1, Point p2, Color color);
             static void _drawVerticalLine(Point p1, Point p2, Color color);
             static void _drawSlopedLine(Point p1, Point p2, Color color);
+
+            #ifdef USE_SDL
+                static inline SDL_Window * _window;
+            #else
+                static inline NWindow * _window;
+            #endif
     };
 }
