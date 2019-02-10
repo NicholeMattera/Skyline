@@ -32,11 +32,11 @@ include $(DEVKITPRO)/libnx/switch_rules
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 DIST		:=	dist
-SOURCES		:=	src $(wildcard src/**)
+SOURCES		:=	example $(wildcard example/**) src $(wildcard src/**)
 EXEFS_SRC	:=	exefs_src
 ROMFS		:=	romfs
 
-APP_TITLE			:= Skyline
+APP_TITLE			:= Skyline Example
 APP_AUTHOR			:= Steven Mattera
 APP_VERSION 		:= 1.0.0
 

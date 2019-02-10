@@ -20,5 +20,36 @@
 #include "View.hpp"
 
 namespace skyline {
+    View::View() : View(SLRectMake(0, 0, 0, 0)) {}
 
+    View::View(Rect frame) {
+        this->frame = frame;
+        this->hidden = false;
+    }
+
+    View::~View() {
+        this->subviews.clear();
+    }
+
+    void View::render(Rect rect, double dTime) {
+        for (auto const& view : this->subviews) {
+            if (!view->hidden) {
+                s16 x = rect.origin.x + view->frame.origin.x;
+                s16 y = rect.origin.y + view->frame.origin.y;
+                s16 w = view->frame.size.w;
+                s16 h = view->frame.size.h;
+                view->render(SLRectMake(x, y, w, h), dTime);
+            }
+        }
+    }
+
+    void View::addSubView(View * view) {
+        view->superview = view;
+        this->subviews.push_back(view);
+    }
+
+    void View::removeSubView(View * view) {
+        view->superview = NULL;
+        this->subviews.remove(view);
+    }
 }

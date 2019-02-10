@@ -20,22 +20,30 @@
 #pragma once
 
 #include <switch.h>
+#include <vector>
 #include "Scene.hpp"
 #include "Types.hpp"
 
 namespace skyline {
     class Application {
         public:
+            static inline Application * sharedApplication;
+
             Application();
             ~Application();
+            
+            void setRootScene(Scene * scene);
+            void pushScene(Scene * scene);
+            void popScene();
+
             void start();
 
-            static inline Scene * currentScene;
-            static inline ColorSetId colorSetId;
-
+            ColorSetId colorSetId;
             Color backgroundColor;
         private:
             NWindow * _window;
             Framebuffer _framebuffer;
+            std::vector<Scene *> _sceneStack;
+            Scene * _currentScene;
     };
 }

@@ -1,5 +1,5 @@
 //
-// Skyline
+// Skyline Example
 // Copyright (C) 2019 Steven Mattera
 //
 // This program is free software; you can redistribute it and/or
@@ -17,25 +17,19 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#pragma once
-
 #include <switch.h>
-#include <list>
-#include "Types.hpp"
-#include "View.hpp"
+#include "../src/Application.hpp"
+#include "scenes/ExampleScene.hpp"
 
-namespace skyline {
-    class Scene {
-        public:
-            Scene();
-            virtual ~Scene();
+using namespace skyline;
+using namespace skylineExample;
 
-            virtual void handleButton(u32 kDown);
-            virtual void render(Rect rect, double dTime);
+int main(int argc, char **argv) {
+    Application * app = new Application();
+    ExampleScene * rootScene = new ExampleScene();
+    app->setRootScene(rootScene);
+    app->start();
 
-            /* View Hierarchy */
-            std::list<View *> subviews;
-            void addSubView(View * view);
-            void removeSubView(View * view);
-    };
+    delete rootScene;
+    delete app;
 }

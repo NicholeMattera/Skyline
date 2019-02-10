@@ -1,5 +1,5 @@
 //
-// Skyline
+// Skyline Example
 // Copyright (C) 2019 Steven Mattera
 //
 // This program is free software; you can redistribute it and/or
@@ -17,13 +17,17 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#include <switch.h>
-#include "Application.hpp"
+#include "ExampleScene.hpp"
+#include "../../src/Application.hpp"
 
 using namespace skyline;
 
-int main(int argc, char **argv) {
-    Application * app = new Application();
-    app->start();
-    delete app;
+namespace skylineExample {
+    ExampleScene::~ExampleScene() {}
+
+    void ExampleScene::handleButton(u32 kDown) {
+        if (kDown & KEY_PLUS) {
+            Application::sharedApplication->popScene();
+        }
+    }
 }

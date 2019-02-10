@@ -22,20 +22,45 @@
 
 namespace skyline {
     Application::Application() {
+        Application::sharedApplication = this;
+
         this->_window = nwindowGetDefault();
         
         framebufferCreate(&this->_framebuffer, this->_window, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 2);
         framebufferMakeLinear(&this->_framebuffer);
 
         setsysInitialize();
-        setsysGetColorSetId(&Application::colorSetId);
+        setsysGetColorSetId(&colorSetId);
         setsysExit();
 
-        this->backgroundColor = (Application::colorSetId == ColorSetId_Light) ? SLColorMake(235, 235, 235, 255) : SLColorMake(45, 45, 45, 255);
+        this->backgroundColor = (colorSetId == ColorSetId_Light) ? SLColorMake(235, 235, 235, 255) : SLColorMake(45, 45, 45, 255);
+        this->_currentScene = NULL;
     }
 
     Application::~Application() {
+        Application::sharedApplication = NULL;
+        _sceneStack.clear();
         framebufferClose(&this->_framebuffer);
+    }
+
+    void Application::setRootScene(Scene * scene) {
+        this->_sceneStack.clear();
+        this->pushScene(scene);
+    }
+
+    void Application::pushScene(Scene * scene) {
+        this->_sceneStack.push_back(scene);
+        this->_currentScene = scene;
+    }
+
+    void Application::popScene() {
+        this->_sceneStack.pop_back();
+
+        if (_sceneStack.size() == 0) {
+            this->_currentScene = NULL;
+        } else {
+            this->_currentScene = this->_sceneStack.back();
+        }
     }
 
     // Public Methods
@@ -43,18 +68,17 @@ namespace skyline {
     void Application::start() {
         while (appletMainLoop()) {
             hidScanInput();
-
             u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-            if (kDown & KEY_PLUS)
+
+            this->_currentScene->handleButton(kDown);
+            if (this->_currentScene == NULL)
                 break;
 
             Draw::framebuffer = (u8 *) framebufferBegin(&this->_framebuffer, &Draw::stride);
             Draw::drawFilledRectangle(SLRectMake(0, 0, FB_WIDTH, FB_HEIGHT), this->backgroundColor);
 
-            if (currentScene != NULL) {
-                currentScene->handleButton(kDown);
-                currentScene->render(SLRectMake(0, 0, FB_WIDTH, FB_HEIGHT), 0);
-            }
+            // TODO: Calculate delta time.
+            this->_currentScene->render(SLRectMake(0, 0, FB_WIDTH, FB_HEIGHT), 0);
 
             framebufferEnd(&this->_framebuffer);
         }

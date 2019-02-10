@@ -19,8 +19,26 @@
 
 #pragma once
 
+#include <switch.h>
+#include <list>
+#include "Types.hpp"
+
 namespace skyline {
     class View {
+        public:
+            Rect frame;
+            bool hidden;
 
+            View();
+            View(Rect frame);
+            virtual ~View();
+
+            virtual void render(Rect rect, double dTime);
+
+            /* View Hierarchy */
+            View * superview;
+            std::list<View *> subviews;
+            void addSubView(View * view);
+            void removeSubView(View * view);
     };
 }
