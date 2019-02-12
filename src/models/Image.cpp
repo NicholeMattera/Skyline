@@ -64,30 +64,8 @@ namespace skyline {
     #endif
 
     #ifndef USE_SDL
-        void Image::_loadFile(std::string file) {
-            ifstream fs(file, ifstream::binary);
-            if (!fs) {
-                this->_fileLength = 0;
-                this->_file = NULL;
-                return;
-            }
-
-            fs.seekg(0, fs.end);
-            this->_fileLength = fs.tellg();
-            fs.seekg(0, fs.beg);
-
-            if (this->_file != NULL)
-                delete[] this->_file;
-
-            char * buffer = new char[this->_fileLength];
-            fs.read(buffer, this->_fileLength);
-            fs.close();
-
-            this->_file = reinterpret_cast<u8 *>(buffer);
-        }
-
         void Image::_loadPng(std::string imageFile) {
-            FILE *fp;
+            FILE * fp;
 
             if ((fp = fopen(imageFile.c_str(), "rb")) == NULL) {
                 return;
@@ -95,26 +73,20 @@ namespace skyline {
 
             png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
             if (!png_ptr) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
+                fclose(fp);
                 return;
             }
 
             png_infop info_ptr = png_create_info_struct(png_ptr);
             if (!info_ptr) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
                 png_destroy_read_struct(&png_ptr, NULL, NULL);
+                fclose(fp);
                 return;
             }
             
             if (setjmp(png_jmpbuf(png_ptr))) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
                 png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+                fclose(fp);
                 return;
             }
 
@@ -127,27 +99,30 @@ namespace skyline {
             int height = png_get_image_height(png_ptr, info_ptr);
             png_byte color_type = png_get_color_type(png_ptr, info_ptr);
 
+            if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA) {
+                png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+                fclose(fp);
+                return;
+            }
+
             png_set_interlace_handling(png_ptr);
             png_read_update_info(png_ptr, info_ptr);
             
             if (setjmp(png_jmpbuf(png_ptr))) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
                 png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+                fclose(fp);
                 return;
             }
 
-
-            png_bytep * row_pointers = (png_bytep *) malloc(sizeof(png_bytep) * height);
-            for (int y = 0; y < height; y++) {
-                row_pointers[y] = (png_byte *) malloc(png_get_rowbytes(png_ptr, info_ptr));
+            png_bytep * row_pointers = new png_bytep[sizeof(png_bytep) * height];
+            for (s32 y = 0; y < height; y++) {
+                row_pointers[y] = new png_byte[png_get_rowbytes(png_ptr, info_ptr)];
             }
 
             png_read_image(png_ptr, row_pointers);
 
             s32 pos;
-            _texture = new u8[width * height * 4];
+            this->_texture = new u8[width * height * 4];
             for (s32 y = 0; y < height; y++) {
                 png_byte * row = row_pointers[y];
                 for (s32 x = 0; x < width; x++) {
@@ -155,68 +130,69 @@ namespace skyline {
                         png_byte* ptr = &(row[x * 3]);
                         pos = ((y * width) + x) * 3;
 
-                        _texture[pos + 0] = ptr[0];
-                        _texture[pos + 1] = ptr[1];
-                        _texture[pos + 2] = ptr[2];
-                        _texture[pos + 3] = 0xFF;
+                        this->_texture[pos + 0] = ptr[0];
+                        this->_texture[pos + 1] = ptr[1];
+                        this->_texture[pos + 2] = ptr[2];
+                        this->_texture[pos + 3] = 0xFF;
                     } else if (color_type == PNG_COLOR_TYPE_RGBA) {
                         png_byte* ptr = &(row[x * 4]);
                         pos = ((y * width) + x) * 4;
 
-                        _texture[pos + 0] = ptr[0];
-                        _texture[pos + 1] = ptr[1];
-                        _texture[pos + 2] = ptr[2];
-                        _texture[pos + 3] = ptr[3];
+                        this->_texture[pos + 0] = ptr[0];
+                        this->_texture[pos + 1] = ptr[1];
+                        this->_texture[pos + 2] = ptr[2];
+                        this->_texture[pos + 3] = ptr[3];
                     }
                 }
             }
 
             _imageSize = SLSizeMake(width, height);
 
-            fclose(fp);
+            for (s32 y = 0; y < height; y++) {
+                delete[] row_pointers[y];
+            }
+            delete[] row_pointers;
 
-            this->_fileLength = 0;
-            delete[] this->_file;
-            
-            png_destroy_read_struct(&png_ptr, NULL, NULL);
+            png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+            fclose(fp);
         }
 
         void Image::_loadJpeg(std::string imageFile) {
-            this->_loadFile(imageFile);
-            if (this->_file == NULL) {
+            ifstream fs(imageFile, ifstream::binary);
+            if (!fs) {
                 return;
             }
 
+            fs.seekg(0, fs.end);
+            int size = fs.tellg();
+            fs.seekg(0, fs.beg);
+
+            char * buffer = new char[size];
+            fs.read(buffer, size);
+            fs.close();
+
             tjhandle _jpegDecompressor = tjInitDecompress();
             if (_jpegDecompressor == NULL) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
+                delete[] buffer;
                 return;
             }
 
             int width, height, subSample;
-            if (tjDecompressHeader2(_jpegDecompressor, this->_file, this->_fileLength, &width, &height, &subSample) == -1) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
+            if (tjDecompressHeader2(_jpegDecompressor, (u8 *) buffer, size, &width, &height, &subSample) == -1) {
+                delete[] buffer;
                 tjDestroy(_jpegDecompressor);
                 return;
             }
 
-            if (tjDecompress2(_jpegDecompressor, this->_file, this->_fileLength, this->_texture, width, 0, height, TJPF_RGBA, TJFLAG_ACCURATEDCT) == -1) {
-                this->_fileLength = 0;
-                delete[] this->_file;
-
+            if (tjDecompress2(_jpegDecompressor, (u8 *) buffer, size, this->_texture, width, 0, height, TJPF_RGBA, TJFLAG_ACCURATEDCT) == -1) {
+                delete[] buffer;
                 tjDestroy(_jpegDecompressor);
                 return;
             }
 
             _imageSize = SLSizeMake(width, height);
 
-            this->_fileLength = 0;
-            delete[] this->_file;
-
+            delete[] buffer;
             tjDestroy(_jpegDecompressor);
         }
 

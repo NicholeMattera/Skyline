@@ -45,12 +45,8 @@ namespace skyline {
             #ifdef USE_SDL
                 SDL_Texture * _texture = NULL;
             #else
-                u8 * _file = NULL;
-                int _fileLength = 0;
-
                 u8 * _texture = NULL;
                 Size _imageSize;
-                void _loadFile(std::string file);
                 void _loadPng(std::string imageFile);
                 void _loadJpeg(std::string imageFile);
                 std::string _getExtension(std::string imageFile);
