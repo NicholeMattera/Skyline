@@ -17,21 +17,14 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#pragma once
+#include "ProgressBarView.hpp"
 
-#include <string>
-#include "../View.hpp"
-#include "../models/Image.hpp"
+using namespace std;
 
 namespace skyline {
-    class HeaderView : public View {
-        public:
-            HeaderView(std::string title, std::string icon);
-            ~HeaderView();
+    ProgressBarView::ProgressBarView() : View() {}
 
-            void render(Rect rect, double dTime);
+    ProgressBarView::~ProgressBarView() {}
 
-        private:
-            Image * _iconImage = NULL;
-    };
+    void ProgressBarView::render(Rect rect, double dTime) {}
 }

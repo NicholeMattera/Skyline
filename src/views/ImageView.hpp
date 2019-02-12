@@ -20,11 +20,12 @@
 #pragma once
 
 #include "../View.hpp"
+#include "../models/Image.hpp"
 
 namespace skyline {
     class ImageView : public View {
         public:
-            ImageView();
+            ImageView(Image * imageFile);
             ~ImageView();
 
             void render(Rect rect, double dTime);

@@ -19,19 +19,16 @@
 
 #pragma once
 
-#include <string>
 #include "../View.hpp"
-#include "../models/Image.hpp"
 
 namespace skyline {
-    class HeaderView : public View {
+    class ProgressBarView : public View {
         public:
-            HeaderView(std::string title, std::string icon);
-            ~HeaderView();
+            ProgressBarView();
+            ~ProgressBarView();
 
             void render(Rect rect, double dTime);
 
         private:
-            Image * _iconImage = NULL;
     };
 }

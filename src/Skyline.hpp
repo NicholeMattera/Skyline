@@ -23,7 +23,10 @@
 #include "Scene.hpp"
 #include "View.hpp"
 
+#include "models/Image.hpp"
+
 #include "views/FooterView.hpp"
 #include "views/HeaderView.hpp"
 #include "views/ImageView.hpp"
+#include "views/ProgressBarView.hpp"
 #include "views/TextView.hpp"

@@ -22,7 +22,7 @@
 using namespace std;
 
 namespace skyline {
-    ImageView::ImageView() : View() {}
+    ImageView::ImageView(Image * imageFile) : View() {}
 
     ImageView::~ImageView() {}
 

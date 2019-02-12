@@ -24,9 +24,15 @@
 using namespace std;
 
 namespace skyline {
-    HeaderView::HeaderView(string title, string icon) : View(SLRectMake(0, 0, FB_WIDTH, 88)) {}
+    HeaderView::HeaderView(string title, string icon) : View(SLRectMake(0, 0, FB_WIDTH, 88)) {
+        _iconImage = new Image(icon);
+    }
 
-    HeaderView::~HeaderView() {}
+    HeaderView::~HeaderView() {
+        if (_iconImage != NULL) {
+            delete _iconImage;
+        }
+    }
 
     void HeaderView::render(Rect rect, double dTime) {
         Color lineColor = (Application::sharedApplication->colorSetId == ColorSetId_Light) ? SLColorMake(45, 45, 45, 255) : SLColorMake(255, 255, 255, 255);
