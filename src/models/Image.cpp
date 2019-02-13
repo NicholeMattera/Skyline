@@ -184,6 +184,7 @@ namespace skyline {
                 return;
             }
 
+            this->_texture = new u8[width * height * 4];
             if (tjDecompress2(_jpegDecompressor, (u8 *) buffer, size, this->_texture, width, 0, height, TJPF_RGBA, TJFLAG_ACCURATEDCT) == -1) {
                 delete[] buffer;
                 tjDestroy(_jpegDecompressor);
