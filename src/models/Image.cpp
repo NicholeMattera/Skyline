@@ -71,78 +71,72 @@ namespace skyline {
                 return;
             }
 
-            png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-            if (!png_ptr) {
+            png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+            if (!png) {
                 fclose(fp);
                 return;
             }
 
-            png_infop info_ptr = png_create_info_struct(png_ptr);
-            if (!info_ptr) {
-                png_destroy_read_struct(&png_ptr, NULL, NULL);
+            png_infop info = png_create_info_struct(png);
+            if (!info) {
+                png_destroy_read_struct(&png, NULL, NULL);
                 fclose(fp);
                 return;
             }
             
-            if (setjmp(png_jmpbuf(png_ptr))) {
-                png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+            if (setjmp(png_jmpbuf(png))) {
+                png_destroy_read_struct(&png, &info, NULL);
                 fclose(fp);
                 return;
             }
 
-            png_init_io(png_ptr, fp);
-            png_set_sig_bytes(png_ptr, 8);
+            png_init_io(png, fp);
+            png_read_info(png, info);
 
-            png_read_info(png_ptr, info_ptr);
+            int width = png_get_image_width(png, info);
+            int height = png_get_image_height(png, info);
+            png_byte color_type = png_get_color_type(png, info);
+            png_byte bit_depth = png_get_bit_depth(png, info);
 
-            int width = png_get_image_width(png_ptr, info_ptr);
-            int height = png_get_image_height(png_ptr, info_ptr);
-            png_byte color_type = png_get_color_type(png_ptr, info_ptr);
+            if(bit_depth == 16)
+                png_set_strip_16(png);
 
-            if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGBA) {
-                png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-                fclose(fp);
-                return;
-            }
+            if(color_type == PNG_COLOR_TYPE_PALETTE)
+                png_set_palette_to_rgb(png);
 
-            png_set_interlace_handling(png_ptr);
-            png_read_update_info(png_ptr, info_ptr);
-            
-            if (setjmp(png_jmpbuf(png_ptr))) {
-                png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-                fclose(fp);
-                return;
-            }
+            if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+                png_set_expand_gray_1_2_4_to_8(png);
+
+            if(png_get_valid(png, info, PNG_INFO_tRNS))
+                png_set_tRNS_to_alpha(png);
+
+            if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_PALETTE)
+                png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+
+            if(color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+                png_set_gray_to_rgb(png);
+
+            png_read_update_info(png, info);
 
             png_bytep * row_pointers = new png_bytep[sizeof(png_bytep) * height];
             for (s32 y = 0; y < height; y++) {
-                row_pointers[y] = new png_byte[png_get_rowbytes(png_ptr, info_ptr)];
+                row_pointers[y] = new png_byte[png_get_rowbytes(png, info)];
             }
 
-            png_read_image(png_ptr, row_pointers);
+            png_read_image(png, row_pointers);
 
             s32 pos;
             this->_texture = new u8[width * height * 4];
             for (s32 y = 0; y < height; y++) {
                 png_byte * row = row_pointers[y];
                 for (s32 x = 0; x < width; x++) {
-                    if (color_type == PNG_COLOR_TYPE_RGB) {
-                        png_byte* ptr = &(row[x * 3]);
-                        pos = ((y * width) + x) * 3;
+                    png_byte* ptr = &(row[x * 4]);
+                    pos = ((y * width) + x) * 4;
 
-                        this->_texture[pos + 0] = ptr[0];
-                        this->_texture[pos + 1] = ptr[1];
-                        this->_texture[pos + 2] = ptr[2];
-                        this->_texture[pos + 3] = 0xFF;
-                    } else if (color_type == PNG_COLOR_TYPE_RGBA) {
-                        png_byte* ptr = &(row[x * 4]);
-                        pos = ((y * width) + x) * 4;
-
-                        this->_texture[pos + 0] = ptr[0];
-                        this->_texture[pos + 1] = ptr[1];
-                        this->_texture[pos + 2] = ptr[2];
-                        this->_texture[pos + 3] = ptr[3];
-                    }
+                    this->_texture[pos + 0] = ptr[0];
+                    this->_texture[pos + 1] = ptr[1];
+                    this->_texture[pos + 2] = ptr[2];
+                    this->_texture[pos + 3] = ptr[3];
                 }
             }
 
@@ -153,7 +147,7 @@ namespace skyline {
             }
             delete[] row_pointers;
 
-            png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+            png_destroy_read_struct(&png, &info, NULL);
             fclose(fp);
         }
 

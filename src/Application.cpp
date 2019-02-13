@@ -24,6 +24,9 @@ namespace skyline {
     Application::Application() {
         Application::sharedApplication = this;
 
+        socketInitializeDefault();
+        nxlinkStdio();
+        romfsInit();
         Draw::drawInit();
 
         setsysInitialize();
@@ -38,6 +41,8 @@ namespace skyline {
         Application::sharedApplication = NULL;
         _sceneStack.clear();
         Draw::drawExit();
+        romfsExit();
+        socketExit();
     }
 
     void Application::setRootScene(Scene * scene) {

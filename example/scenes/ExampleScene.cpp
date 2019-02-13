@@ -23,7 +23,7 @@ using namespace skyline;
 
 namespace skylineExample {
     ExampleScene::ExampleScene() : Scene() {
-        _headerView = new HeaderView("Skyline Example", "sdmc:/dark/icon.png");
+        _headerView = new HeaderView("Skyline Example", "romfs:/dark/icon.png");
         this->addSubView(_headerView);
 
         _footerView = new FooterView();
