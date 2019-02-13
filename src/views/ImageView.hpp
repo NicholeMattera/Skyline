@@ -25,11 +25,12 @@
 namespace skyline {
     class ImageView : public View {
         public:
-            ImageView(Image * imageFile);
+            ImageView(Image * image);
             ~ImageView();
 
             void render(Rect rect, double dTime);
 
         private:
+            Image * _image = NULL;
     };
 }

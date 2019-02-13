@@ -29,18 +29,18 @@
 using namespace std;
 
 namespace skyline {
-    Image::Image(string imageFile) {
+    Image::Image(string filePath) {
         #ifdef USE_SDL
-            SDL_Surface * image = IMG_Load(imageFile.c_str());
+            SDL_Surface * image = IMG_Load(filePath.c_str());
             SDL_Texture * texture = SDL_CreateTextureFromSurface(Draw::renderer, image);
             SDL_FreeSurface(image);
         #else
-            string ext = this->_getExtension(imageFile);
+            string ext = this->_getExtension(filePath);
             if (ext == "png") {
-                this->_loadPng(imageFile);
+                this->_loadPng(filePath);
             }
             else if (ext == "jpg" || ext == "jpeg" || ext == "jpe" || ext == "jif" || ext == "jfif" || ext == "jfi") {
-                this->_loadJpeg(imageFile);
+                this->_loadJpeg(filePath);
             }
         #endif
     }
@@ -61,13 +61,17 @@ namespace skyline {
         u8 * Image::getTexture() {
             return _texture;
         }
+
+        Size Image::getImageSize() {
+            return _imageSize;
+        }
     #endif
 
     #ifndef USE_SDL
-        void Image::_loadPng(std::string imageFile) {
+        void Image::_loadPng(std::string filePath) {
             FILE * fp;
 
-            if ((fp = fopen(imageFile.c_str(), "rb")) == NULL) {
+            if ((fp = fopen(filePath.c_str(), "rb")) == NULL) {
                 return;
             }
 
@@ -151,8 +155,8 @@ namespace skyline {
             fclose(fp);
         }
 
-        void Image::_loadJpeg(std::string imageFile) {
-            ifstream fs(imageFile, ifstream::binary);
+        void Image::_loadJpeg(std::string filePath) {
+            ifstream fs(filePath, ifstream::binary);
             if (!fs) {
                 return;
             }
@@ -191,8 +195,8 @@ namespace skyline {
             tjDestroy(_jpegDecompressor);
         }
 
-        string Image::_getExtension(string imageFile) {
-            return imageFile.substr(imageFile.find_last_of(".") + 1);
+        string Image::_getExtension(string filePath) {
+            return filePath.substr(filePath.find_last_of(".") + 1);
         }
     #endif
 }

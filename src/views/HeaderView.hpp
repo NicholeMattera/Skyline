@@ -22,6 +22,7 @@
 #include <string>
 #include "../View.hpp"
 #include "../models/Image.hpp"
+#include "../views/ImageView.hpp"
 
 namespace skyline {
     class HeaderView : public View {
@@ -33,5 +34,6 @@ namespace skyline {
 
         private:
             Image * _iconImage = NULL;
+            ImageView * _imageView = NULL;
     };
 }

@@ -26,16 +26,26 @@ using namespace std;
 namespace skyline {
     HeaderView::HeaderView(string title, string icon) : View(SLRectMake(0, 0, FB_WIDTH, 88)) {
         _iconImage = new Image(icon);
+
+        _imageView = new ImageView(_iconImage);
+        _imageView->frame = SLRectMake(74, 29, 30, 44);
+        this->addSubView(_imageView);
     }
 
     HeaderView::~HeaderView() {
         if (_iconImage != NULL) {
             delete _iconImage;
         }
+
+        if (_imageView != NULL) {
+            delete _imageView;
+        }
     }
 
     void HeaderView::render(Rect rect, double dTime) {
         Color lineColor = (Application::sharedApplication->colorSetId == ColorSetId_Light) ? SLColorMake(45, 45, 45, 255) : SLColorMake(255, 255, 255, 255);
         Draw::drawLine(SLPointMake(30, rect.origin.y + rect.size.h - 1), SLPointMake(rect.size.w - 30, rect.origin.y + rect.size.h - 1), lineColor);
+
+        View::render(rect, dTime);
     }
 }

@@ -18,13 +18,27 @@
 //
 
 #include "ImageView.hpp"
+#include "../Draw.hpp"
 
 using namespace std;
 
 namespace skyline {
-    ImageView::ImageView(Image * imageFile) : View() {}
+    ImageView::ImageView(Image * image) : View() {
+        _image = image;
+    }
 
     ImageView::~ImageView() {}
 
-    void ImageView::render(Rect rect, double dTime) {}
+    void ImageView::render(Rect rect, double dTime) {
+        if (_image != NULL) {
+            double w = _image->getImageSize().w;
+            double h = _image->getImageSize().h;
+            double x = rect.origin.x + (rect.size.w / 2 - w / 2);
+            double y = rect.origin.y + (rect.size.h / 2 - h / 2);
+
+            Draw::drawImage(SLRectMake(x, y, w, h), _image->getTexture(), IMAGE_MODE_RGBA32);
+        }
+
+        View::render(rect, dTime);
+    }
 }
