@@ -37,7 +37,7 @@ EXEFS_SRC	:=	exefs_src
 ROMFS		:=	romfs
 
 APP_TITLE			:= Skyline Example
-APP_AUTHOR			:= Steven Mattera
+APP_AUTHOR			:= Nichole Mattera
 APP_VERSION 		:= 1.0.0
 
 #---------------------------------------------------------------------------------
